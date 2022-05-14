@@ -25,6 +25,47 @@ AddEventHandler("onResourceStart", function(resourceName)
     end
 end)
 
+RegisterNetEvent("qb-mdt:server:OnPlayerUnload", function()
+	--// Delete player from the MDT on logout
+	local src = source
+	local player = QBCore.Functions.GetPlayer(src)
+	if activeUnits[player.PlayerData.citizenid] ~= nil then
+		activeUnits[player.PlayerData.citizenid] = nil
+	end
+end)
+
+RegisterServerEvent("playerDropped")
+AddEventHandler("playerDropped", function(reason)
+	--// Delete player from the MDT on logout
+	local src = source
+	local player = QBCore.Functions.GetPlayer(src)
+	if player ~= nil then
+		if activeUnits[player.PlayerData.citizenid] ~= nil then
+			activeUnits[player.PlayerData.citizenid] = nil
+		end
+	else
+		local license = QBCore.Functions.GetIdentifier(src, "license")
+		local citizenids = GetCitizenID(license)
+
+		for _, v in pairs(citizenids) do
+			if activeUnits[v.citizenid] ~= nil then
+				activeUnits[v.citizenid] = nil
+			end
+		end
+	end
+end)
+
+RegisterNetEvent("qb-mdt:server:ToggleDuty", function()
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    if not player.PlayerData.job.onduty then
+	--// Remove from MDT
+	if activeUnits[player.PlayerData.citizenid] ~= nil then
+		activeUnits[player.PlayerData.citizenid] = nil
+	end
+    end
+end)
+
 RegisterNetEvent('mdt:server:openMDT', function()
 	local src = source
 	local PlayerData = GetPlayerData(src)
@@ -47,8 +88,10 @@ RegisterNetEvent('mdt:server:openMDT', function()
 	local JobType = GetJobType(PlayerData.job.name)
 	local bulletin = GetBulletins(JobType)
 
+	local calls = exports['qb-dispatch']:GetDispatchCalls()
+
 	--TriggerClientEvent('mdt:client:dashboardbulletin', src, bulletin)
-	TriggerClientEvent('mdt:client:open', src, bulletin, activeUnits)
+	TriggerClientEvent('mdt:client:open', src, bulletin, activeUnits, calls, PlayerData.citizenid)
 	--TriggerClientEvent('mdt:client:GetActiveUnits', src, activeUnits)
 end)
 
@@ -236,6 +279,12 @@ QBCore.Functions.CreateCallback('mdt:server:GetProfileData', function(source, cb
 		person.profilepic = mdtData.pfp
 		person.tags = json.decode(mdtData.tags)
 		person.gallery = json.decode(mdtData.gallery)
+	end
+
+	local mdtData2 = GetPfpFingerPrintInformation(sentId)
+	if mdtData2 then
+		person.fingerprint = mdtData2.fingerprint
+		person.profilepic = mdtData.pfp
 	end
 
 	return cb(person)

@@ -3857,11 +3857,16 @@ $(document).ready(() => {
       let fireCount = 0;
 
       let activeUnits = eventData.activeUnits;
+      let cid = eventData.citizenid;
+      let onDutyOnly = eventData.ondutyonly;
       $(".active-unit-list").html(' ');
       let unitListHTML = '';
 
       activeUnits = Object.values(activeUnits)
       activeUnits.forEach((unit) => {
+        if (onDutyOnly && unit.duty == 0 && unit.cid != cid) {
+          return
+        }
         let status = unit.duty == 1 ? "10-8" : '10-7';
         let statusColor = unit.duty == 1 ? "green-status" : 'yellow-status';
         let radioBack = unit.sig100 ? "#7b2c2c" : "var(--color-3)";
@@ -4083,7 +4088,11 @@ $(document).ready(() => {
         if (value["doorCount"]) {
           DispatchItem += `<div class="call-bottom-info"><span class="fas fa-door-open"></span>${value.doorCount}</div>`;
         }
-
+        
+        if (value["speed"]) {
+          DispatchItem += `<div class="call-bottom-info"><span class="fas fa-arrow-right"></span>${value.speed}</div>`;
+        }
+        
         if (value["weapon"]) {
           DispatchItem += `<div class="call-bottom-info"><span class="fas fa-bullseye"></span>${value.weapon}</div>`;
         }

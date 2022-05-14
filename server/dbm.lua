@@ -1,5 +1,16 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
+-- Get CitizenIDs from Player License
+function GetCitizenID(license)
+    local result = MySQL.query.await("SELECT citizenid FROM players WHERE license = ?", {license,})
+    if result ~= nil then
+        return result
+    else
+        print("Cannot find a CitizenID for License: "..license)
+        return nil
+    end
+end
+
 -- (Start) Opening the MDT and sending data
 function AddLog(text)
 	--print(text)
@@ -26,6 +37,11 @@ function GetPersonInformation(cid, jobtype)
 	local result = MySQL.query.await('SELECT information, tags, gallery, pfp, fingerprint FROM mdt_data WHERE cid = ? and jobtype = ?', { cid,  jobtype})
 	return result[1]
 	-- return exports.oxmysql:executeSync('SELECT information, tags, gallery FROM mdt WHERE cid= ? and type = ?', { cid, jobtype })
+end
+
+function GetPfpFingerPrintInformation(cid)
+	local result = MySQL.query.await('SELECT pfp, fingerprint FROM mdt_data WHERE cid = ?', { cid })
+	return result[1]
 end
 
 -- idk but I guess sure?
