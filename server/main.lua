@@ -20,12 +20,12 @@ local function IsPolice(job)
 end
 
 AddEventHandler("onResourceStart", function(resourceName)
-	if (resourceName == 'qb-mdt') then
+	if (resourceName == 'ps-mdt') then
         activeUnits = {}
     end
 end)
 
-RegisterNetEvent("qb-mdt:server:OnPlayerUnload", function()
+RegisterNetEvent("ps-mdt:server:OnPlayerUnload", function()
 	--// Delete player from the MDT on logout
 	local src = source
 	local player = QBCore.Functions.GetPlayer(src)
@@ -55,7 +55,7 @@ AddEventHandler("playerDropped", function(reason)
 	end
 end)
 
-RegisterNetEvent("qb-mdt:server:ToggleDuty", function()
+RegisterNetEvent("ps-mdt:server:ToggleDuty", function()
     local src = source
     local player = QBCore.Functions.GetPlayer(src)
     if not player.PlayerData.job.onduty then
@@ -88,7 +88,7 @@ RegisterNetEvent('mdt:server:openMDT', function()
 	local JobType = GetJobType(PlayerData.job.name)
 	local bulletin = GetBulletins(JobType)
 
-	local calls = exports['qb-dispatch']:GetDispatchCalls()
+	local calls = exports['ps-dispatch']:GetDispatchCalls()
 
 	--TriggerClientEvent('mdt:client:dashboardbulletin', src, bulletin)
 	TriggerClientEvent('mdt:client:open', src, bulletin, activeUnits, calls, PlayerData.citizenid)
@@ -184,7 +184,7 @@ RegisterNetEvent('mdt:server:deleteBulletin', function(id, title)
 	if not PermCheck(src, PlayerData) then return end
 	local JobType = GetJobType(PlayerData.job.name)
 
-	local deletion = MySQL.query.await('DELETE FROM `mdt_bulletin` where title = ?', {title})
+	MySQL.query.await('DELETE FROM `mdt_bulletin` where id = ?', {id})
 	AddLog("Bulletin with Title: "..title.." was deleted by " .. GetNameFromPlayerData(PlayerData) .. ".")
 end)
 
@@ -284,7 +284,7 @@ QBCore.Functions.CreateCallback('mdt:server:GetProfileData', function(source, cb
 	local mdtData2 = GetPfpFingerPrintInformation(sentId)
 	if mdtData2 then
 		person.fingerprint = mdtData2.fingerprint
-		person.profilepic = mdtData.pfp
+		person.profilepic = mdtData and mdtData.pfp or ""
 	end
 
 	return cb(person)
@@ -827,7 +827,7 @@ RegisterNetEvent('mdt:server:saveVehicleInfo', function(dbid, plate, imageurl, n
 
 								result.currentSelection = impoundInfo.CurrentSelection
 								result.plate = plate
-								TriggerClientEvent('qb-mdt:client:TakeOutImpound', src, result)
+								TriggerClientEvent('ps-mdt:client:TakeOutImpound', src, result)
 							end
 
 						end
@@ -1012,7 +1012,7 @@ RegisterNetEvent('mdt:server:setWaypoint', function(callid)
 	local JobType = GetJobType(Player.PlayerData.job.name)
 	if JobType == 'police' or JobType == 'ambulance' then
 		if callid then
-			local calls = exports['qb-dispatch']:GetDispatchCalls()
+			local calls = exports['ps-dispatch']:GetDispatchCalls()
 			TriggerClientEvent('mdt:client:setWaypoint', src, calls[callid])
 		end
 	end
@@ -1063,7 +1063,7 @@ RegisterNetEvent('mdt:server:attachedUnits', function(callid)
 	local JobType = GetJobType(Player.PlayerData.job.name)
 	if JobType == 'police' or JobType == 'ambulance' then
 		if callid then
-			local calls = exports['qb-dispatch']:GetDispatchCalls()
+			local calls = exports['ps-dispatch']:GetDispatchCalls()
 			TriggerClientEvent('mdt:client:attachedUnits', src, calls[callid]['units'], callid)
 		end
 	end
@@ -1096,7 +1096,7 @@ RegisterNetEvent('mdt:server:setDispatchWaypoint', function(callid, cid)
 	local JobType = GetJobType(Player.PlayerData.job.name)
 	if JobType == 'police' or JobType == 'ambulance' then
 		if callid then
-			local calls = exports['qb-dispatch']:GetDispatchCalls()
+			local calls = exports['ps-dispatch']:GetDispatchCalls()
 			TriggerClientEvent('mdt:client:setWaypoint', src, calls[callid])
 		end
 	end
@@ -1172,7 +1172,7 @@ RegisterNetEvent('mdt:server:getCallResponses', function(callid)
 	local src = source
 	local Player = QBCore.Functions.GetPlayer(src)
 	if IsPolice(Player.PlayerData.job.name) then
-		local calls = exports['qb-dispatch']:GetDispatchCalls()
+		local calls = exports['ps-dispatch']:GetDispatchCalls()
 		TriggerClientEvent('mdt:client:getCallResponses', src, calls[callid]['responses'], callid)
 	end
 end)
@@ -1197,7 +1197,7 @@ RegisterNetEvent('mdt:server:setRadio', function(cid, newRadio)
 		TriggerClientEvent("QBCore:Notify", src, 'You can only change your radio!', 'error')
 		return
 	else
-		local radio = Player.Functions.GetItemByName("phone")
+		local radio = Player.Functions.GetItemByName("radio")
 		if radio ~= nil then
 			TriggerClientEvent('mdt:client:setRadio', src, newRadio)
 		else
