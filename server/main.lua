@@ -25,6 +25,17 @@ AddEventHandler("onResourceStart", function(resourceName)
     end
 end)
 
+if Config.UseWolfknightRadar == true then
+	RegisterNetEvent("wk:onPlateScanned")
+	AddEventHandler("wk:onPlateScanned", function(cam, plate, index)
+		local src = source
+		local Player = QBCore.Functions.GetPlayer(src)
+		local bolo = GetBoloStatus(plate)
+		if bolo == true then
+			TriggerClientEvent("wk:togglePlateLock", src, cam, true, bolo)
+		end
+	end)
+end
 RegisterNetEvent("ps-mdt:server:OnPlayerUnload", function()
 	--// Delete player from the MDT on logout
 	local src = source
@@ -700,7 +711,7 @@ QBCore.Functions.CreateCallback('mdt:server:SearchVehicles', function(source, cb
 
 				value.code = false
 				value.stolen = false
-				value.image = "img/not-found.jpg"
+				value.image = "img/not-found.webp"
 				local info = GetVehicleInformation(value.plate)
 				if info then
 					value.code = info['code5']
@@ -757,7 +768,7 @@ RegisterNetEvent('mdt:server:getVehicleData', function(plate)
 						vehicle[1]['stolen'] = info['stolen']
 					end
 
-					if vehicle[1]['image'] == nil then vehicle[1]['image'] = "img/not-found.jpg" end -- Image
+					if vehicle[1]['image'] == nil then vehicle[1]['image'] = "img/not-found.webp" end -- Image
 				end
 
 				TriggerClientEvent('mdt:client:getVehicleData', src, vehicle)
