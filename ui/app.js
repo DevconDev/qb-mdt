@@ -1273,7 +1273,7 @@ $(document).ready(() => {
       var template = "";
       if ($(".badge-logo").attr("src") == "img/ems_badge.png") {
         template =
-          "ICU Room #: [ # ]\n\nReport ID: [ Report ID ]\n\nTime Admitted: [ Date and Time Here ]\n\nSurgery: [Yes/No]\n\nInjuries/Ailments:\n - [ Enter List Of Injuries Here ]\n\n\nAdditional Attending:\n - [ List Any Other Staff Here ]\n\n\n🧑‍🤝‍🧑 Additonal Emergency Contacts:\n - [ Name And Number ]\n\n\nNotes:\n[Additional Notes Here]";
+          "ICU Room #: [ # ]\n\nReport ID: [ Report ID ]\n\nTime Admitted: [ Date and Time Here ]\n\nSurgery: [Yes/No]\n\nInjuries/Ailments:\n - [ Enter List Of Injuries Here ]\n\n\nAdditional Attending:\n - [ List Any Other Staff Here ]\n\n\n🧑‍🤝‍🧑 Additional Emergency Contacts:\n - [ Name And Number ]\n\n\nNotes:\n[Additional Notes Here]";
       }
       $(".manage-bolos-editing-title").html(
         "You are currently creating a new BOLO"
@@ -1346,9 +1346,11 @@ $(document).ready(() => {
         }
       });
 
-      $(".bolo-gallery-inner-container").each(function (index) {
-        if ($(this).text() != "") {
-          gallery.push($(this).text());
+      $(".bolo-gallery-inner-container")
+      .find("img")
+      .each(function () {
+        if ($(this).attr("src") != "") {
+          gallery.push($(this).attr("src"));
         }
       });
 
